@@ -164,7 +164,7 @@ export default function SnippetsGallery({ snippets, timestamp }: Props) {
               <ul className="space-y-3 text-gray-300">
                 <li className="flex items-start gap-3">
                   <span className="text-blue-400 mt-0.5">✓</span>
-                  <span><strong className="text-white">Client Components</strong> with 'use client' directive</span>
+                  <span><strong className="text-white">Client Components</strong> with &apos;use client&apos; directive</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <span className="text-blue-400 mt-0.5">✓</span>

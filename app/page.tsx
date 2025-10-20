@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Editor from '@monaco-editor/react';
+import Link from 'next/link';
 
 const DEFAULT_CODE = `function WelcomeCard() {
   const [count, setCount] = React.useState(0);
@@ -72,12 +73,12 @@ export default function Home() {
           <h1 className="text-xl font-bold text-white">React Code Playground</h1>
           <p className="text-sm text-gray-400">Edit code • See live results • Built with Next.js App Router</p>
         </div>
-        <a
+        <Link
           href="/snippets"
           className="bg-gray-700 hover:bg-gray-600 text-white px-6 py-2 rounded-lg font-semibold transition float-right mr-4 flex items-center gap-2"
         >
           📚 Browse Snippets
-        </a>
+        </Link>
         <button
           onClick={executeCode}
           className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-semibold transition"
