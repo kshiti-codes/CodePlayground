@@ -1,103 +1,139 @@
-import Image from "next/image";
+'use client';
+
+import { useState } from 'react';
+import Editor from '@monaco-editor/react';
+
+const DEFAULT_CODE = `function WelcomeCard() {
+  const [count, setCount] = React.useState(0);
+  
+  return (
+    <div className="p-8 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg shadow-xl">
+      <h1 className="text-3xl font-bold mb-4">Interactive Demo</h1>
+      <p className="text-xl mb-4">Count: {count}</p>
+      <button 
+        onClick={() => setCount(count + 1)}
+        className="bg-white text-blue-600 px-6 py-2 rounded-lg font-semibold hover:bg-gray-100"
+      >
+        Increment
+      </button>
+    </div>
+  );
+}`;
 
 export default function Home() {
-  return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [code, setCode] = useState(DEFAULT_CODE);
+  const [error, setError] = useState('');
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  const executeCode = () => {
+    setError('');
+    const iframe = document.getElementById('preview') as HTMLIFrameElement;
+    if (!iframe?.contentWindow) return;
+    // Extract the component name from the code
+    const componentNameMatch = code.match(/function\s+([a-zA-Z_$][a-zA-Z0-9_$]*)/);
+    const componentName = componentNameMatch ? componentNameMatch[1] : 'Demo';
+
+    const fullCode = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+          <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+          <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+          <script src="https://cdn.tailwindcss.com"></script>
+          <style>body { margin: 0; padding: 20px; background: #f3f4f6; }</style>
+        </head>
+        <body>
+          <div id="root"></div>
+          <script type="text/babel">
+            try {
+              const { useState, useEffect } = React;
+              
+              ${code}
+              
+              const root = ReactDOM.createRoot(document.getElementById('root'));
+              // Dynamically render the component using the extracted name
+              root.render(React.createElement(${componentName}));
+            } catch (error) {
+              document.getElementById('root').innerHTML = '<div class="p-4 bg-red-100 text-red-700 rounded"><p class="font-bold">Error:</p><p>' + error.message + '</p></div>';
+            }
+          </script>
+        </body>
+      </html>
+    `;
+
+    iframe.srcdoc = fullCode;
+  };
+
+  return (
+    <div className="h-screen flex flex-col bg-gray-900">
+      {/* Header */}
+      <div className="bg-gray-800 border-b border-gray-700 p-4 flex items-center justify-between">
+        <div>
+          <h1 className="text-xl font-bold text-white">React Code Playground</h1>
+          <p className="text-sm text-gray-400">Edit code • See live results • Built with Next.js App Router</p>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
         <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
+          href="/snippets"
+          className="bg-gray-700 hover:bg-gray-600 text-white px-6 py-2 rounded-lg font-semibold transition float-right mr-4 flex items-center gap-2"
         >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
+          📚 Browse Snippets
         </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
+        <button
+          onClick={executeCode}
+          className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-semibold transition"
         >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
+          ▶ Run Code
+        </button>
+      </div>
+
+      {/* Main Content */}
+      <div className="flex-1 flex overflow-hidden">
+        {/* Editor Panel */}
+        <div className="w-1/2 border-r border-gray-700 flex flex-col">
+          <div className="bg-gray-800 px-4 py-2 border-b border-gray-700">
+            <span className="text-sm font-semibold text-gray-300">Editor (App Router)</span>
+          </div>
+          <Editor
+            height="100%"
+            defaultLanguage="javascript"
+            theme="vs-dark"
+            value={code}
+            onChange={(value: string | undefined) => setCode(value ?? '')}
+            options={{
+              minimap: { enabled: false },
+              fontSize: 14,
+              lineNumbers: 'on',
+              roundedSelection: false,
+              scrollBeyondLastLine: false,
+              automaticLayout: true,
+            }}
           />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
+        </div>
+
+        {/* Preview Panel */}
+        <div className="w-1/2 flex flex-col bg-gray-100">
+          <div className="bg-gray-800 px-4 py-2 border-b border-gray-700">
+            <span className="text-sm font-semibold text-gray-300">Live Preview</span>
+          </div>
+          {error && (
+            <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4">
+              <p className="font-bold">Error</p>
+              <p className="text-sm">{error}</p>
+            </div>
+          )}
+          <iframe
+            id="preview"
+            className="flex-1 w-full bg-white"
+            sandbox="allow-scripts"
+            title="Preview"
           />
-          Go to nextjs.org →
-        </a>
-      </footer>
+        </div>
+      </div>
+
+      {/* Footer */}
+      <div className="bg-gray-800 border-t border-gray-700 px-4 py-2 text-center text-sm text-gray-400">
+        Built with Next.js 15 • App Router • Monaco Editor • TypeScript
+      </div>
     </div>
   );
 }
